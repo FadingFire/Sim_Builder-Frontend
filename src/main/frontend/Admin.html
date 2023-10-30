@@ -2,9 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="CSS/Admin.css">
     <title>Adminpage</title>
 </head>
 <body>
+<header>
+        <div class="header">
+            <div class="logo">
+                <img src="Assets/istockphoto-518202091-612x612.jpg" height="100%" width="100%">
+            </div>
+        </div>
+    </header>
+    <div>
+        <img class="background" src="Assets/3c591d9bbbefed4bd8aca3ac988e16cc-1506773100.jpg" alt="none" height="100%" width="100%">
+        <form class="form" name="choice">
+            <button class="knop" onclick=sendCommand()>submit</button>
+            <label>
+                <input list="airlines" placeholder="start typing..." name="choose">
+            </label>
+            <datalist id="airlines">
+                <script>
+                    const providers =
 
+                    providers.sort().forEach(myfunction);
+                    const airlinesDatalist = document.getElementById("airlines");
+
+                    function myfunction(item) {
+                        const option = document.createElement("option");
+                        option.value = item;
+                        airlinesDatalist.appendChild(option);
+                    }
+
+                    async function sendCommand(){
+                        let input = document.forms["choice"]["choose"].value
+                        let url = "http://127.0.0.1:5000/terminal/start"
+                        const response = await fetch("http://127.0.0.1:5000/terminal/start");
+                        const info = await response.json();
+                        console.log(info);
+                    }
+
+                </script>
+            </datalist>
+        </form>
+    </div>
 </body>
 </html>

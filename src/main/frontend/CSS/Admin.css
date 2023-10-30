@@ -1,0 +1,46 @@
+    body{
+        margin: 0;
+    }
+
+    .form{
+        position: absolute;
+        height: 80%;
+        width: 100%;
+        z-index: 1;
+        display: flex;
+        margin: 0;
+        align-items: start;
+        justify-content: start;
+        flex-direction: row-reverse;
+    }
+
+    .knop{
+        height: 4vh;
+        width: 10vh;
+    }
+
+    .header{
+        margin: 0;
+        height: 10vh;
+        width: 100%;
+        background-color: blue;
+        display: flex;
+        align-items: center;
+    }
+
+    .background{
+        opacity: 100;
+        position: fixed;
+        z-index: 0;
+    }
+
+    .logo{
+        height: 7vh;
+        width: 10vh;
+        background-color:white;
+        margin-left: 5vh;
+    }
+
+    .text{
+        height: 3.3vh;
+    }
