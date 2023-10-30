@@ -16,7 +16,7 @@
     </header>
     <div class="whole">
         <div class="form">
-            <form id="choice" method="post" name="choice">
+            <form id="choice" method="get" name="choice">
                 <button type="button" onclick="sendCommand()">
                     Click Me
                 </button>
@@ -39,7 +39,7 @@
             <script>
                 async function sendCommand(){
                     let input = document.forms["choice"]["choose"].value
-                    let url = "http://127.0.0.1:5000/terminal/start"
+                    let url = "http://127.0.0.1:5000/terminal/" + input
                     const response = await fetch(url);
                     const info = await response.json();
                     console.log(info)
