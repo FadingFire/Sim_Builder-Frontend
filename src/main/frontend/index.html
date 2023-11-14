@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="CSS/index.css">
-    <title>Title</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="CSS/index.css">
+        <title>Title</title>
+    </head>
 <body>
     <img class="background" src="Assets/3c591d9bbbefed4bd8aca3ac988e16cc-1506773100.jpg" alt="none" height="100%" width="100%" >
     <header>
@@ -17,39 +17,146 @@
     <div class="whole">
         <div class="form">
             <form id="choice" method="get" name="choice">
-                <button type="button" onclick="sendCommand()">
-                    Click Me
-                </button>
-                <p id="demo"></p>
-                <label>
-                    A
-                    <input type="radio" value="A" name="choose">
-                    B
-                    <input type="radio" value="B" name="choose">
-                    C
-                    <input type="radio" value="C" name="choose">
-                </label>
-                <button type="submit"></button>
-                <label>
-                    <input list="airlines" placeholder="start typing..." name="providers">
-                </label>
-                <datalist id="airlines">
-            </datalist>
+                <span class="datalist-arrow">
+<!--                    <label for="commandInput">-->
+<!--                        <input type="text" id="commandInput" name="commandinput" list="commands" placeholder="Stack Commands...">-->
+<!--                    </label>-->
+<!--                    <datalist id="commands">-->
+<!--                        <option value="ADDNODES">ADDNODES number \ Add a simulation instance/node</option>-->
+<!--                        <option value="ADDWPT">ADDWPT acid, (wpname/lat,lon/TAKEOFF),[alt,spd,afterwp] \ Add a waypoint to route of aircraft.</option>-->
+<!--                        <option value="ADDWPTMODE">ADDWPTMODE acid, [FLYBY/FLYOVER/FLYTURN/TURNRAD/TURNSPD],[spd/radius] \ Changes the type of waypoints added with the ADDWPT command, and other parameters.</option>-->
+<!--                        <option value="ATALT">ATALT acid ATALT alt cmd \ When an aircraft reaches a given altitude, execute the given command.</option>-->
+<!--                        <option value="ATDIST">ATDIST acid ATDIST pos dist cmd \ When an aircraft reaches a certain distance to a position, execute the given command.</option>-->
+<!--                        <option value="ATSPD">ATSPD acid ATSPD spd cmd \ When an aircraft reaches a given speed (CAS), execute the given command.</option>-->
+<!--                        <option value="BANK">BANK acid bankangle[deg] \ Set bank angle limit in degrees of vehicle to be used by autopilot.</option>-->
+<!--                        <option value="BATCH">BATCH filename \ Start a scenario file as batch simulation.</option>-->
+<!--                        <option value="BLUESKY">BLUESKY</option>-->
+<!--                        <option value="BENCHMARK">BENCHMARK [scenfile,time] \ Run benchmark.</option>-->
+<!--                        <option value="BOX">BOX name,lat,lon,lat,lon,[top,bottom] \ Define a box-shaped area.</option>-->
+<!--                        <option value="CALC">CALC expression \ Simple in-line math calculator.</option>-->
+<!--                        <option value="CASMACHTHR">CASMACHTHR threshold \ Changes the threshold at which a velocity value is taken as a Mach number instead of CAS (kts). Set conflict detection method.</option>-->
+<!--                        <option value="CIRCLE">CIRCLE name,lat,lon,radius,[top,bottom] \ Define a circle-shaped area.</option>-->
+<!--                        <option value="CLRCRECMD">CLRCRECMD \ Clear CRECMD list </option>-->
+<!--                        <option value="COLOR">COLOR name,color (named color or r,g,b) \ Color an aircraft or graphical object (area, line, etc.).</option>-->
+<!--                        <option value="CRE">CRE acid,type,lat,lon,hdg,alt,spd \ Create an aircraft.</option>-->
+<!--                        <option value="CRECMD">CRECMD cmdline (to be added after a/c id) \ Add a command to the list of commands to be issued for each aircraft immediately after creation.</option>-->
+<!--                        <option value="CRECONFS">CRECONFS id, type, targetid, dpsi, cpa, tlos_hor, dH, tlos_ver, spd \ Create an aircraft that is in conflict with an existing aircraft.</option>-->
+<!--                        <option value="DEFWPT">DEFWPT wpname,lat,lon,[FIX/VOR/DME/NDB] \ Define a waypoint only for this run.</option>-->
+<!--                        <option value="DEL">DEL acid/ALL/WIND/shape \ Delete command.</option>-->
+<!--                        <option value="DIST">DIST lat0, lon0, lat1, lon1 \ Distance and direction calculation between two coordinate positions.</option>-->
+<!--                        <option value="DT">DT [dt] OR [target,dt] \ Set simulation time step.</option>-->
+<!--                        <option value="DTMULT">DTMULT multiplier \ Set multiplication factor for fast-time simulation.</option>-->
+<!--                        <option value="ECHO">ECHO txt \ Show a text in the command window for the user to read.</option>-->
+<!--                        <option value="FF">FF [timeinsec] \ Fast forward the simulation.</option>-->
+<!--                        <option value="FIXDT">FIXDT ON/OFF [tend] \ Fix the time step.</option>-->
+<!--                        <option value="HOLD">HOLD \ Pause the simulation</option>-->
+<!--                        <option value="IMPL">IMPL [base, implementation] \ IMPL [base, implementation]</option>-->
+<!--                        <option value="INSEDIT">INSEDIT txt \ Insert text in the edit line in the command window.</option>-->
+<!--                        <option value="LINE">LINE name,lat,lon,lat,lon \ Draw a line on the radar screen.</option>-->
+<!--                        <option value="MAGVAR">MAGVAR lat,lon \ Get magnetic variation/declination at a position.</option>-->
+<!--                        <option value="MCRE">MCRE n, [type/*, alt/*, spd/*, dest/*] \ Multiple random create of n aircraft in the current view.</option>-->
+<!--                        <option value="MOVE">MOVE acid,lat,lon,[alt,hdg,spd,vspd] \ Move an aircraft to a new position.</option>-->
+<!--                        <option value="ND">ND acid \ Show navigation display with CDTI.</option>-->
+<!--                        <option value="NOISE">NOISE [ON/OFF] \ Turbulence/noise switch.</option>-->
+<!--                        <option value="OP">OP \ Start simulation or continue after pause.</option>-->
+<!--                        <option value="POLY">POLY name,[lat,lon,lat,lon, ...] \ Define a polygon-shaped area.</option>-->
+<!--                        <option value="POLYALT">POLYALT name,top,bottom,lat,lon,lat,lon, ... \ Define a polygon-shaped area in 3D.</option>-->
+<!--                        <option value="POS">POS acid/waypoint \ Get info on aircraft.</option>-->
+<!--                        <option value="QUIT">QUIT \ Quit the program/Stop simulation.</option>-->
+<!--                        <option value="RESET">RESET \ Reset simulation.</option>-->
+<!--                        <option value="SEED">SEED value \ Set seed for all functions using a randomizer.</option>-->
+<!--                        <option value="SSD">SSD ALL/CONFLICTS/OFF or SSD acid0, acid1, ... \ Show conflict prevention display.</option>-->
+<!--                        <option value="start">Start bluesky</option>-->
+<!--                        <option value="stop">Stop bluesky</option>-->
+<!--                        <option value="SWRAD">SWRAD GEO/GRID/APT/VOR/WPT/LABEL/ADSBCOVERAGE/TRAIL/POLY [dt]/[value] \ Switch on/off elements and background of map/radar view.</option>-->
+<!--                        <option value="SYMBOL">SYMBOL \ Toggle aircraft symbol.</option>-->
+<!--                        <option value="THR">THR acid, IDLE/0.0/throttle setting/1.0/AUTO(default) \ Set throttle setting or throttle AUTO(=default).</option>-->
+<!--                        <option value="TIME">TIME RUN(default) / HH:MM:SS.hh / REAL / UTC \ Set simulated clock time.</option>-->
+<!--                    </datalist>-->
+                </span>
+<!--                <button type="button" onclick="sendCommand()">-->
+<!--                    Send Stack-->
+<!--                </button>-->
+                <div class="scene">
+                    <div class="sceneselect">
+<!--                        <p>plane amount: </p>-->
+<!--                        <input type="number" min="0" max="100">-->
+                    </div>
+                    <div class="sceneselect">
+                        <p>percentage of directions:</p>
+                        RIVER <input type="range" min="0" max="100" step="1" value="33">
+                        ARTIP <input type="range" min="0" max="100" step="1" value="33">
+                        SUGOL <input type="range" min="0" max="100" step="1" value="33">
+                    </div>
+                </div>
             </form>
             <script>
+                const elements = document.querySelectorAll('input');
+                const length = elements.length;
+                const sliders = Array.prototype.slice.call(elements);
+                const max = 100;
+
+                function change(current) {
+                    set(current);
+
+                    const input = +current.value;
+                    const delta = max - input;
+                    let sum = 0;
+                    const siblings = [];
+
+                    // Sum of all siblings
+                    sliders.forEach(function (slider) {
+                        if (current !== slider) {
+                            siblings.push(slider); // Register as sibling
+                            sum += +slider.value;
+                        }
+                    });
+
+                    // Update all the siblings
+                    let partial = 0;
+                    siblings.forEach(function (slider, i) {
+                        let val = +slider.value;
+                        const fraction = sum > 0 ? val / sum : 1 / (length - 1);
+                        if (i >= length - 1) {
+                            val = max - partial;
+                        } else {
+                            val = Math.round(delta * fraction); // Round the value
+                            partial += val;
+                        }
+                        set(slider, val);
+                    });
+                }
+
+                // Set value on a slider
+                function set(elm, val) {
+                    if (val || val === 0) { // Check for both 0 and undefined
+                        elm.value = val;
+                    }
+                    elm.setAttribute('value', elm.value);
+                }
+                // Add event listeners to the DOM elements
+                let i = 0, l = elements.length;
+                for (; i < l; i++) {
+                    elements[i].addEventListener('input', function (e) {
+                        change(this);
+                    }, false);
+                }
+
                 async function sendCommand(){
-                    let input = document.forms["choice"]["choose"].value
+                    input = document.getElementById("commandInput").value
                     let url = "http://127.0.0.1:5000/terminal/" + input
                     const response = await fetch(url);
-                    const info = await response.json();
-                    console.log(info)
-                    info.message.sort().forEach(myfunction);
+                    // const info = await response.json();
+                    // if (!document.getElementById("existing")){
+                    // info.message.sort().forEach(myfunction);
+                    // }
 
-                    function myfunction(self) {
-                        const option = document.createElement("option");
-                        option.value = self;
-                        document.getElementById("airlines").appendChild(option);
-                    }
+                    // function myfunction(self) {
+                    //     const option = document.createElement("option");
+                    //     option.value = self;
+                    //     option.id = "existing"
+                    //     document.getElementById("airlines").appendChild(option);
+                    // }
                 }
             </script>
         </div>
