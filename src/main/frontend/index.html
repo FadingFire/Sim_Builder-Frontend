@@ -98,12 +98,10 @@
 
                 function change(current) {
                     set(current);
-
                     const input = +current.value;
                     const delta = max - input;
                     let sum = 0;
                     const siblings = [];
-
                     // Sum of all siblings
                     sliders.forEach(function (slider) {
                         if (current !== slider) {
@@ -137,7 +135,7 @@
                 // Add event listeners to the DOM elements
                 let i = 0, l = elements.length;
                 for (; i < l; i++) {
-                    elements[i].addEventListener('input', function (e) {
+                    elements[i].addEventListener('input', function () {
                         change(this);
                     }, false);
                 }
