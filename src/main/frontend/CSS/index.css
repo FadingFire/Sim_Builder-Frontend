@@ -46,13 +46,6 @@ input[type="range"] {
     width: 20vh ;
 }
 
-input[type="range"]::after {
-    content: attr(value);
-    position: absolute;
-    padding: 0;
-    left: 57%;
-}
-
 .header{
     margin: 0;
     height: 10vh;
