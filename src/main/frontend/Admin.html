@@ -28,12 +28,12 @@
 </html>
 <script>
     async function sendCommand(){
-        let url = "http://127.0.0.1:5000/admin/airlines"
+        let url = "http://127.0.0.1:5000/terminal/start"
         const response = await fetch(url);
         const info = await response.json();
-        if (!document.getElementById("existing")){
-            info.message.sort().forEach(myfunction);
-        }
+        // if (!document.getElementById("existing")){
+        //     info.message.sort().forEach(myfunction);
+        // }
     }
     function myfunction(self) {
         const option = document.createElement("option");
