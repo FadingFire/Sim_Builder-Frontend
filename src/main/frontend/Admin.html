@@ -6,25 +6,46 @@
         <title>Adminpage</title>
     </head>
 <body>
-    <div>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <label for="Flights">Choose a file:</label>
+        <input type="file" name="Flights" id="Flights">
+        <input type="file" name="Landings" id="Landings">
+        <input type="button" value="Upload" onclick="uploadFile()">
+    </form>
+    <div id="table">
         <div id="output" style="height:500px; width: auto; overflow:auto;">
         </div>
-        <button onclick="pagedown()"></button>
-        <button onclick="pageup()"></button>
+        <div class="paginatebutton">
+            <button onclick="pagedown()">pagedown</button>
+            <p id="page"> page: 1</p>
+            <button onclick="pageup()">pageup</button>
+        </div>
+        <div>
+            Delete data older than:
+            <input id="DateOlder" type="date">
+            <!-- Confirmation popup before deletion -->
+            <button onclick="confirmDelete()">Save</button>
+        </div>
     </div>
 </body>
 </html>
 <script>
     let pagenumber = 1
     let pagesize = 10
-    async function sendCommand(){
-        let url = "http://127.0.0.1:5000/terminal/start"
-        const response = await fetch(url);
-        const info = await response.json();
-        // if (!document.getElementById("existing")){
-        //     info.message.sort().forEach(myfunction);
-        // }
-    }
+    let page = document.getElementById("page")
+    function uploadFile() {
+        const formData = new FormData(document.getElementById('uploadForm'));
+
+        // Manually submit the form
+            fetch('http://127.0.0.1:5000/scene/upload', {
+                method: 'POST',
+                body: formData
+            })
+        }
+    document.getElementById("Flights").value = ''
+    document.getElementById("Landings").value = ''
+
+
     function myfunction(self) {
         const option = document.createElement("option");
         option.value = self;
@@ -36,6 +57,7 @@
         if (pagenumber <1000){
             pagenumber = pagenumber + 1
             fetchData(pagenumber, pagesize)
+            page.innerText = "page: " + pagenumber
         }
     }
 
@@ -43,33 +65,14 @@
         if (pagenumber > 1){
             pagenumber = pagenumber - 1
             fetchData(pagenumber, pagesize)
+            page.innerText = "page: " + pagenumber
         }
     }
-
-
-
-    async function fetchSort(pageNumber, pageSize) {
-        try {
-            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}`;
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const responseData = await response.json();
-
-            // Call your function to update the table with the response data
-            processData(responseData.data);
-        } catch (error) {
-            console.error('Error fetching paginated data:', error.message);
-        }
-    }
-
 
 
     async function fetchData(pageNumber, pageSize) {
         try {
-            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}`;
+            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -93,12 +96,13 @@
 
     function processData(csv) {
         const allTextLines = csv.split(/\r\n|\n/);
-        const lines = [];
+        let lines = [];
         while (allTextLines.length) {
             let line = allTextLines.shift().split(',');
             lines.push(line);
         }
         drawOutput(lines);
+
     }
 
     function drawOutput(lines) {
@@ -115,13 +119,12 @@
 
             if (i === 0) {
                 // Handling click for the header row
-                row.insertCell(0).innerHTML = '';
+                row.insertCell(-1).innerHTML = '';
                 row.firstChild.id = "buttons"
                 row.onclick = function (event) {
                     if (event.target.tagName === "TD" && event.target.id !== "buttons") {
                         cellContent = event.target.innerHTML;
-                        console.log(cellContent)
-                        row.onclick = fetchSort(1, pagesize)
+                        row.onclick = fetchData(1, pagesize)
                     }
                 };
             } else if (i <=pagesize) {
@@ -129,9 +132,8 @@
                 row.insertCell(0).innerHTML =
                     '<button onclick="editData(this)">Edit</button>' +
                     '<button onclick="deleteData(this)">Delete</button>';
-                row.cells.id = "Editbutton";
             }
-            for (let j = 1; j < lines[i].length; j++) {
+            for (let j = 0; j < lines[i].length; j++) {
                 const cell = row.insertCell(-1);
                 cell.appendChild(document.createTextNode(lines[i][j]));
 
@@ -223,6 +225,19 @@ function tableToCSV() {
 
     // console.log(csv_data)
 }
+
+function confirmDelete() {
+        const deleteDate = document.getElementById("DateOlder").value;
+        const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
+
+        if (confirmation) {
+            // User confirmed, proceed with deletion
+            fetchData(pagenumber, pagesize);
+        }
+        // If not confirmed, do nothing
+    }
+
+
 
 // Fetch paginated data when the page loads
 fetchData(1, 10);

@@ -6,8 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# own ignore
-assets/complete.csv
 
 # Distribution / packaging
 .Python
