@@ -1,38 +1,129 @@
-.FullTable {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: auto;
-      max-height: 300px; /* Set your preferred max height */
-    }
-
-.FullTable th, .FullTable td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-
-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
+/* Global Reset */
+body,
+h1,
+h2,
+h3,
+p,
+ul {
+    margin: 0;
+    padding: 0;
 }
 
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+/* Font */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+#uploadForm {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Container Styling */
+.container {
+    max-width: 1500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styling */
+#uploadForm {
+    margin-bottom: 20px;
+}
+
+/* Table Styling */
+.FullTable {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: auto;
+    max-height: 300px;
+}
+
+.FullTable th,
+.FullTable td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
 }
 
 th {
-  background-color: #f2f2f2;
+    background-color: #f5f5f5;
 }
 
 tr:hover {
-  background-color: #f5f5f5;
+    background-color: #f0f0f0;
 }
 
-.paginatebutton{
+/* Pagination Styling */
+.pagination-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Delete Container Styling */
+.delete-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Delete Input Styling */
+#DateOlder {
+    margin-right: 10px;
+}
+
+.title{
+    display: flex;
+    justify-content: center
+}
+
+/* Button Styling */
+button {
+    padding: 7px 15px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button Hover Effect */
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Table Output Container Styling */
+.output-container {
+    height: 500px;
+    width: auto;
+    overflow: auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* Responsive Styling for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .FullTable th,
+    .FullTable td {
+        padding: 8px;
+    }
+
+    button {
+        padding: 10px 15px;
+    }
 }

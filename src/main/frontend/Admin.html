@@ -6,42 +6,54 @@
         <title>Adminpage</title>
     </head>
 <body>
-    <form id="uploadForm" method="POST" enctype="multipart/form-data">
-        <label for="Flights">Choose a file:</label>
-        <input type="file" name="Flights" id="Flights">
-        <input type="file" name="Landings" id="Landings">
-        <input type="button" value="Upload" onclick="uploadFile()">
-    </form>
-    <div id="table">
-        <div id="output" style="height:500px; width: auto; overflow:auto;">
+    <div class="container">
+
+        <div class="title">
+            <h1>Flights Database</h1>
         </div>
-        <div class="paginatebutton">
-            <button onclick="pagedown()">pagedown</button>
-            <p id="page"> page: 1</p>
-            <button onclick="pageup()">pageup</button>
-        </div>
-        <div>
-            Delete data older than:
-            <input id="DateOlder" type="date">
-            <!-- Confirmation popup before deletion -->
-            <button onclick="confirmDelete()">Save</button>
+
+        <div id="table">
+            <div id="output" class="output-container">
+            </div>
+
+            <div class="pagination-container">
+                <button onclick="pagedown()">pagedown</button>
+                <p id="page">Page: 1</p>
+                <button onclick="pageup()">pageup</button>
+            </div>
+
+            <div class="delete-container">
+                <label for="DateOlder">Delete data older than:</label>
+                <input id="DateOlder" type="date">
+                <button onclick="confirmDelete()">Save</button>
+            </div>
+
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                <label for="Flights">Choose a file:</label>
+                <input type="file" name="Flights" id="Flights">
+                <input type="file" name="Landings" id="Landings">
+                <input type="button" value="Upload" onclick="uploadFile()">
+            </form>
+
         </div>
     </div>
 </body>
 </html>
 <script>
-    let pagenumber = 1
-    let pagesize = 10
-    let page = document.getElementById("page")
+    let pagenumber = 1;
+    let pagesize = 10;
+    let page = document.getElementById("page");
+    let deleterow = ["", '']
+
     function uploadFile() {
         const formData = new FormData(document.getElementById('uploadForm'));
 
-        // Manually submit the form
-            fetch('http://127.0.0.1:5000/scene/upload', {
-                method: 'POST',
-                body: formData
-            })
-        }
+        fetch('http://127.0.0.1:5000/scene/upload', {
+            method: 'POST',
+            body: formData
+        })
+    }
+    // Clear file input fields after upload
     document.getElementById("Flights").value = ''
     document.getElementById("Landings").value = ''
 
@@ -72,7 +84,7 @@
 
     async function fetchData(pageNumber, pageSize) {
         try {
-            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}`;
+            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}&Deleterow=${deleterow[1].innerHTML}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -87,10 +99,6 @@
         }
     }
 
-
-
-
-
     let haschanged = false;
     let cellContent;
 
@@ -99,8 +107,10 @@
         let lines = [];
         while (allTextLines.length) {
             let line = allTextLines.shift().split(',');
+            line.pop()
             lines.push(line);
         }
+
         drawOutput(lines);
 
     }
@@ -145,7 +155,10 @@
 
     function deleteData(button) {
         // Get the parent row of the clicked button
+
         let row = button.parentNode.parentNode;
+        deleterow = row.children
+        console.log(deleterow[1])
         // Remove the row from the table
         row.parentNode.removeChild(row);
         haschanged = true
@@ -196,50 +209,50 @@
         }
     }
 
-function tableToCSV() {
+    function tableToCSV() {
 
-    // Variable to store the final csv data
-    let csv_data = [];
+        // Variable to store the final csv data
+        let csv_data = [];
 
-    // Get each row data
-    const rows = document.getElementsByTagName('tr');
-    for (let i = 0; i < rows.length; i++) {
+        // Get each row data
+        const rows = document.getElementsByTagName('tr');
+        for (let i = 0; i < rows.length; i++) {
 
-        // Get each column data
-        const cols = rows[i].querySelectorAll('td,th');
+            // Get each column data
+            const cols = rows[i].querySelectorAll('td,th');
 
-        // Stores each csv row data
-        const csvrow = [];
-        for (let j = 1; j < cols.length; j++) {
+            // Stores each csv row data
+            const csvrow = [];
+            for (let j = 1; j < cols.length; j++) {
 
-            // Get the text data of each cell of
-            // a row and push it to csvrow
-            csvrow.push(cols[j].innerHTML);
+                // Get the text data of each cell of
+                // a row and push it to csvrow
+                csvrow.push(cols[j].innerHTML);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
         }
+        // combine each row data with new line character
+        csv_data = csv_data.join('\n');
 
-        // Combine each column value with comma
-        csv_data.push(csvrow.join(","));
-    }
-    // combine each row data with new line character
-    csv_data = csv_data.join('\n');
-
-    // console.log(csv_data)
-}
-
-function confirmDelete() {
-        const deleteDate = document.getElementById("DateOlder").value;
-        const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
-
-        if (confirmation) {
-            // User confirmed, proceed with deletion
-            fetchData(pagenumber, pagesize);
-        }
-        // If not confirmed, do nothing
+        // console.log(csv_data)
     }
 
+    function confirmDelete() {
+            const deleteDate = document.getElementById("DateOlder").value;
+            const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
+
+            if (confirmation) {
+                // User confirmed, proceed with deletion
+                fetchData(pagenumber, pagesize);
+            }
+            // If not confirmed, do nothing
+        }
 
 
-// Fetch paginated data when the page loads
-fetchData(1, 10);
+
+    // Fetch paginated data when the page loads
+    fetchData(1, 10);
 
 </script>
