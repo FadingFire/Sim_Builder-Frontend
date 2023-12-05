@@ -64,7 +64,7 @@ tr:hover {
 .pagination-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     margin-bottom: 20px;
 }
 
@@ -83,6 +83,12 @@ tr:hover {
 .title{
     display: flex;
     justify-content: center
+}
+
+.scenebutton{
+    display: flex;
+    align-items: center;
+    margin-right: 0.5vh;
 }
 
 /* Button Styling */

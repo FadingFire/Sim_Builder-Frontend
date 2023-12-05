@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="CSS/Admin.css">
-        <title>Adminpage</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="CSS/Admin.css">
+    <title>Adminpage</title>
+</head>
 <body>
     <div class="container">
 
@@ -35,6 +35,12 @@
                 <input type="button" value="Upload" onclick="uploadFile()">
             </form>
 
+            <div class="scenebutton">
+                <p class="scenebutton">amount of planes in scene: </p>
+                <input class="scenebutton" type="number" id="sortamount" min="0" max="100">
+                <button class="scenebutton" onclick="downloadScene()">download example scene file</button>
+            </div>
+
         </div>
     </div>
 </body>
@@ -43,7 +49,37 @@
     let pagenumber = 1;
     let pagesize = 10;
     let page = document.getElementById("page");
-    let deleterow = ["", '']
+    let deleterow = ["", ''];
+    let sortOrder = 'asc'; // Default sorting order
+
+
+    function downloadScene() {
+        let sortamount = document.getElementById("sortamount").value;
+        fetch(`http://127.0.0.1:5000/scene/scene?sortamount=${sortamount}`, {
+            method: 'GET'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            // Assuming the response is a file, trigger the download
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'scenefile.scn'; // Set the desired filename
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error downloading scene file:', error.message);
+        });
+    }
+
 
     function uploadFile() {
         const formData = new FormData(document.getElementById('uploadForm'));
@@ -54,37 +90,35 @@
         })
     }
     // Clear file input fields after upload
-    document.getElementById("Flights").value = ''
-    document.getElementById("Landings").value = ''
-
+    document.getElementById("Flights").value = '';
+    document.getElementById("Landings").value = '';
 
     function myfunction(self) {
         const option = document.createElement("option");
         option.value = self;
-        option.id = "existing"
+        option.id = "existing";
         document.getElementById("airlines").appendChild(option);
     }
 
-    function pageup(){
-        if (pagenumber <1000){
-            pagenumber = pagenumber + 1
-            fetchData(pagenumber, pagesize)
-            page.innerText = "page: " + pagenumber
+    function pageup() {
+        if (pagenumber < 1000) {
+            pagenumber = pagenumber + 1;
+            fetchData(pagenumber, pagesize, sortOrder);
+            page.innerText = "page: " + pagenumber;
         }
     }
 
-    function pagedown(){
-        if (pagenumber > 1){
-            pagenumber = pagenumber - 1
-            fetchData(pagenumber, pagesize)
-            page.innerText = "page: " + pagenumber
+    function pagedown() {
+        if (pagenumber > 1) {
+            pagenumber = pagenumber - 1;
+            fetchData(pagenumber, pagesize, sortOrder);
+            page.innerText = "page: " + pagenumber;
         }
     }
 
-
-    async function fetchData(pageNumber, pageSize) {
+    async function fetchData(pageNumber, pageSize, order) {
         try {
-            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}&Deleterow=${deleterow[1].innerHTML}`;
+            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}&Deleterow=${deleterow[1].innerHTML}&order=${order}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -107,12 +141,11 @@
         let lines = [];
         while (allTextLines.length) {
             let line = allTextLines.shift().split(',');
-            line.pop()
+            line.pop();
             lines.push(line);
         }
 
         drawOutput(lines);
-
     }
 
     function drawOutput(lines) {
@@ -130,14 +163,19 @@
             if (i === 0) {
                 // Handling click for the header row
                 row.insertCell(-1).innerHTML = '';
-                row.firstChild.id = "buttons"
+                row.firstChild.id = "buttons";
                 row.onclick = function (event) {
                     if (event.target.tagName === "TD" && event.target.id !== "buttons") {
-                        cellContent = event.target.innerHTML;
-                        row.onclick = fetchData(1, pagesize)
+                        if (cellContent === event.target.innerHTML) {
+                            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            cellContent = event.target.innerHTML;
+                            sortOrder = 'asc';
+                        }
+                        fetchData(1, pagesize, sortOrder);
                     }
                 };
-            } else if (i <=pagesize) {
+            } else if (i <= pagesize) {
                 // Buttons for non-header rows
                 row.insertCell(0).innerHTML =
                     '<button onclick="editData(this)">Edit</button>' +
@@ -146,68 +184,118 @@
             for (let j = 0; j < lines[i].length; j++) {
                 const cell = row.insertCell(-1);
                 cell.appendChild(document.createTextNode(lines[i][j]));
-
             }
         }
         document.getElementById("output").appendChild(table);
         tableToCSV();
     }
 
-    function deleteData(button) {
+    async function deleteData(button) {
         // Get the parent row of the clicked button
-
         let row = button.parentNode.parentNode;
-        deleterow = row.children
-        console.log(deleterow[1])
+        deleterow = row.children;
+        console.log(deleterow[1]);
         // Remove the row from the table
         row.parentNode.removeChild(row);
-        haschanged = true
+        haschanged = true;
+        let url = `http://127.0.0.1:5000/scene/complete/table?Deleterow=${deleterow[1].innerHTML}`;
+        await fetch(url);
     }
-
+    let updatedData
     function editData(button) {
-        haschanged = true
+        haschanged = true;
         // Get the parent row of the clicked button
         let row = button.parentNode.parentNode;
 
-        // Get the cells within the row
-        let CallsignCell = row.cells[2];
-        let OperatorCell = row.cells[3];
-        let ICAOTypeCell = row.cells[4];
-        let ADEPCell = row.cells[5];
-        let DESTCell = row.cells[6];
-        let TASCell = row.cells[7];
-        let RFLCell = row.cells[8];
-        let WeightClassCell = row.cells[9];
-        let RunWayCell = row.cells[11];
-        let GATECell = row.cells[12];
-        let STACKCell = row.cells[13];
-
-        // Update the cell contents with the new values
-        CallsignCell.innerHTML = prompt("Enter the new Callsign:",
-                CallsignCell.innerHTML);
-        OperatorCell.innerHTML = prompt("Enter the new Operator:",
-                OperatorCell.innerHTML);
-        ICAOTypeCell.innerHTML = prompt("Enter the new Aircraft Type:",
-                ICAOTypeCell.innerHTML);
-        ADEPCell.innerHTML = prompt("Enter the new ADEP:",
-                ADEPCell.innerHTML);
-        DESTCell.innerHTML = prompt("Enter the new DEST:",
-                DESTCell.innerHTML);
-        TASCell.innerHTML = prompt("Enter the new TAS:",
-                TASCell.innerHTML);
-        RFLCell.innerHTML = prompt("Enter the new RFL:",
-                RFLCell.innerHTML);
-        WeightClassCell.innerHTML = prompt("Enter the new Weight Class:",
-                WeightClassCell.innerHTML);
-        if (DESTCell.innerHTML === "EHAM"){
-            RunWayCell.innerHTML = prompt("Enter the new Runway:",
-                    RunWayCell.innerHTML);
-            GATECell.innerHTML = prompt("Enter the new GATE:",
-                    GATECell.innerHTML);
-            STACKCell.innerHTML = prompt("Enter the new STACK:",
-                    STACKCell.innerHTML);
+        // // Get the cells within the row
+        // let CallsignCell = row.cells[2];
+        // let OperatorCell = row.cells[3];
+        // let ICAOTypeCell = row.cells[4];
+        // let ADEPCell = row.cells[5];
+        // let DESTCell = row.cells[6];
+        // let TASCell = row.cells[7];
+        // let RFLCell = row.cells[8];
+        // let WeightClassCell = row.cells[9];
+        // let RunWayCell = row.cells[11];
+        // let GATECell = row.cells[12];
+        // let STACKCell = row.cells[13];
+        if (row.cells[6].innerHTML === "EHAM" ){
+            updatedData = {
+                FLIGHT_ID: row.cells[1].innerHTML,
+                Callsign: prompt("Enter the new Callsign:", row.cells[2].innerHTML),
+                Operator: prompt("Enter the new Operator:", row.cells[3].innerHTML),
+                ICAOType: prompt("Enter the new Aircraft Type:", row.cells[4].innerHTML),
+                ADEP: prompt("Enter the new ADEP:", row.cells[5].innerHTML),
+                DEST: prompt("Enter the new DEST:", row.cells[6].innerHTML),
+                TAS: prompt("Enter the new TAS:", row.cells[7].innerHTML),
+                RFL: prompt("Enter the new RFL:", row.cells[8].innerHTML),
+                WeightClass: prompt("Enter the new Weight Class:", row.cells[9].innerHTML),
+                RunWay: prompt("Enter the new Runway:", row.cells[11].innerHTML),
+                GATE: prompt("Enter the new GATE:", row.cells[12].innerHTML),
+                STACK: prompt("Enter the new STACK:", row.cells[13].innerHTML),
+            };
+        } else {
+            updatedData = {
+                FLIGHT_ID: row.cells[1].innerHTML,
+                Callsign: prompt("Enter the new Callsign:", row.cells[2].innerHTML),
+                Operator: prompt("Enter the new Operator:", row.cells[3].innerHTML),
+                ICAOType: prompt("Enter the new Aircraft Type:", row.cells[4].innerHTML),
+                ADEP: prompt("Enter the new ADEP:", row.cells[5].innerHTML),
+                DEST: prompt("Enter the new DEST:", row.cells[6].innerHTML),
+                TAS: prompt("Enter the new TAS:", row.cells[7].innerHTML),
+                RFL: prompt("Enter the new RFL:", row.cells[8].innerHTML),
+                WeightClass: prompt("Enter the new Weight Class:", row.cells[9].innerHTML),
+            };
         }
-    }
+
+        //
+        // // Update the cell contents with the new values
+        // CallsignCell.innerHTML = prompt("Enter the new Callsign:",
+        //     CallsignCell.innerHTML);
+        // OperatorCell.innerHTML = prompt("Enter the new Operator:",
+        //     OperatorCell.innerHTML);
+        // ICAOTypeCell.innerHTML = prompt("Enter the new Aircraft Type:",
+        //     ICAOTypeCell.innerHTML);
+        // ADEPCell.innerHTML = prompt("Enter the new ADEP:",
+        //     ADEPCell.innerHTML);
+        // DESTCell.innerHTML = prompt("Enter the new DEST:",
+        //     DESTCell.innerHTML);
+        // TASCell.innerHTML = prompt("Enter the new TAS:",
+        //     TASCell.innerHTML);
+        // RFLCell.innerHTML = prompt("Enter the new RFL:",
+        //     RFLCell.innerHTML);
+        // WeightClassCell.innerHTML = prompt("Enter the new Weight Class:",
+        //     WeightClassCell.innerHTML);
+        // if (DESTCell.innerHTML === "EHAM") {
+        //     RunWayCell.innerHTML = prompt("Enter the new Runway:",
+        //         RunWayCell.innerHTML);
+        //     GATECell.innerHTML = prompt("Enter the new GATE:",
+        //         GATECell.innerHTML);
+        //     STACKCell.innerHTML = prompt("Enter the new STACK:",
+        //         STACKCell.innerHTML);
+        // }
+
+        fetch('http://127.0.0.1:5000/scene/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data.message);
+        // Optionally update your UI based on the response
+    })
+    .catch(error => {
+        console.error('Error updating data:', error.message);
+    });
+}
 
     function tableToCSV() {
 
@@ -240,19 +328,16 @@
     }
 
     function confirmDelete() {
-            const deleteDate = document.getElementById("DateOlder").value;
-            const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
+        const deleteDate = document.getElementById("DateOlder").value;
+        const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
 
-            if (confirmation) {
-                // User confirmed, proceed with deletion
-                fetchData(pagenumber, pagesize);
-            }
-            // If not confirmed, do nothing
+        if (confirmation) {
+            // User confirmed, proceed with deletion
+            fetchData(pagenumber, pagesize, sortOrder);
         }
-
-
+        // If not confirmed, do nothing
+    }
 
     // Fetch paginated data when the page loads
-    fetchData(1, 10);
-
+    fetchData(1, 10, sortOrder);
 </script>
