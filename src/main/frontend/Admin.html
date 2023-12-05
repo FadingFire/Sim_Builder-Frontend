@@ -51,6 +51,7 @@
     let page = document.getElementById("page");
     let deleterow = ["", ''];
     let sortOrder = 'asc'; // Default sorting order
+    let rowcount
 
 
     function downloadScene() {
@@ -101,7 +102,7 @@
     }
 
     function pageup() {
-        if (pagenumber < 1000) {
+        if (pagenumber < rowcount) {
             pagenumber = pagenumber + 1;
             fetchData(pagenumber, pagesize, sortOrder);
             page.innerText = "page: " + pagenumber;
@@ -128,6 +129,8 @@
 
             // Call your function to update the table with the response data
             processData(responseData.data);
+            rowcount = responseData.pagenumber
+            console.log(rowcount)
         } catch (error) {
             console.error('Error fetching paginated data:', error.message);
         }
@@ -141,7 +144,6 @@
         let lines = [];
         while (allTextLines.length) {
             let line = allTextLines.shift().split(',');
-            line.pop();
             lines.push(line);
         }
 
@@ -155,7 +157,7 @@
         const table = document.createElement("table");
         table.className = "FullTable";
 
-        for (let i = 0; i < lines.length; i++) {
+        for (let i = 0; i < lines.length - 1; i++) {
             const row = table.insertRow(-1);
             row.id = i.toString();
             row.className = "fullcsv";
@@ -177,7 +179,7 @@
                 };
             } else if (i <= pagesize) {
                 // Buttons for non-header rows
-                row.insertCell(0).innerHTML =
+                row.insertCell(-1).innerHTML =
                     '<button onclick="editData(this)">Edit</button>' +
                     '<button onclick="deleteData(this)">Delete</button>';
             }
@@ -187,145 +189,99 @@
             }
         }
         document.getElementById("output").appendChild(table);
-        tableToCSV();
     }
 
     async function deleteData(button) {
         // Get the parent row of the clicked button
         let row = button.parentNode.parentNode;
         deleterow = row.children;
-        console.log(deleterow[1]);
         // Remove the row from the table
         row.parentNode.removeChild(row);
         haschanged = true;
         let url = `http://127.0.0.1:5000/scene/complete/table?Deleterow=${deleterow[1].innerHTML}`;
         await fetch(url);
     }
-    let updatedData
+
     function editData(button) {
-        haschanged = true;
-        // Get the parent row of the clicked button
-        let row = button.parentNode.parentNode;
+    haschanged = true;
+    let row = button.parentNode.parentNode;
 
-        // // Get the cells within the row
-        // let CallsignCell = row.cells[2];
-        // let OperatorCell = row.cells[3];
-        // let ICAOTypeCell = row.cells[4];
-        // let ADEPCell = row.cells[5];
-        // let DESTCell = row.cells[6];
-        // let TASCell = row.cells[7];
-        // let RFLCell = row.cells[8];
-        // let WeightClassCell = row.cells[9];
-        // let RunWayCell = row.cells[11];
-        // let GATECell = row.cells[12];
-        // let STACKCell = row.cells[13];
-        if (row.cells[6].innerHTML === "EHAM" ){
-            updatedData = {
-                FLIGHT_ID: row.cells[1].innerHTML,
-                Callsign: prompt("Enter the new Callsign:", row.cells[2].innerHTML),
-                Operator: prompt("Enter the new Operator:", row.cells[3].innerHTML),
-                ICAOType: prompt("Enter the new Aircraft Type:", row.cells[4].innerHTML),
-                ADEP: prompt("Enter the new ADEP:", row.cells[5].innerHTML),
-                DEST: prompt("Enter the new DEST:", row.cells[6].innerHTML),
-                TAS: prompt("Enter the new TAS:", row.cells[7].innerHTML),
-                RFL: prompt("Enter the new RFL:", row.cells[8].innerHTML),
-                WeightClass: prompt("Enter the new Weight Class:", row.cells[9].innerHTML),
-                RunWay: prompt("Enter the new Runway:", row.cells[11].innerHTML),
-                GATE: prompt("Enter the new GATE:", row.cells[12].innerHTML),
-                STACK: prompt("Enter the new STACK:", row.cells[13].innerHTML),
-            };
-        } else {
-            updatedData = {
-                FLIGHT_ID: row.cells[1].innerHTML,
-                Callsign: prompt("Enter the new Callsign:", row.cells[2].innerHTML),
-                Operator: prompt("Enter the new Operator:", row.cells[3].innerHTML),
-                ICAOType: prompt("Enter the new Aircraft Type:", row.cells[4].innerHTML),
-                ADEP: prompt("Enter the new ADEP:", row.cells[5].innerHTML),
-                DEST: prompt("Enter the new DEST:", row.cells[6].innerHTML),
-                TAS: prompt("Enter the new TAS:", row.cells[7].innerHTML),
-                RFL: prompt("Enter the new RFL:", row.cells[8].innerHTML),
-                WeightClass: prompt("Enter the new Weight Class:", row.cells[9].innerHTML),
-            };
-        }
+    // Create a form element
+    let form = document.createElement("form");
+    form.className = "editform"
+    let fields
 
-        //
-        // // Update the cell contents with the new values
-        // CallsignCell.innerHTML = prompt("Enter the new Callsign:",
-        //     CallsignCell.innerHTML);
-        // OperatorCell.innerHTML = prompt("Enter the new Operator:",
-        //     OperatorCell.innerHTML);
-        // ICAOTypeCell.innerHTML = prompt("Enter the new Aircraft Type:",
-        //     ICAOTypeCell.innerHTML);
-        // ADEPCell.innerHTML = prompt("Enter the new ADEP:",
-        //     ADEPCell.innerHTML);
-        // DESTCell.innerHTML = prompt("Enter the new DEST:",
-        //     DESTCell.innerHTML);
-        // TASCell.innerHTML = prompt("Enter the new TAS:",
-        //     TASCell.innerHTML);
-        // RFLCell.innerHTML = prompt("Enter the new RFL:",
-        //     RFLCell.innerHTML);
-        // WeightClassCell.innerHTML = prompt("Enter the new Weight Class:",
-        //     WeightClassCell.innerHTML);
-        // if (DESTCell.innerHTML === "EHAM") {
-        //     RunWayCell.innerHTML = prompt("Enter the new Runway:",
-        //         RunWayCell.innerHTML);
-        //     GATECell.innerHTML = prompt("Enter the new GATE:",
-        //         GATECell.innerHTML);
-        //     STACKCell.innerHTML = prompt("Enter the new STACK:",
-        //         STACKCell.innerHTML);
-        // }
+    // Define the fields you want to edit
+    if (row.cells[6].innerHTML === "EHAM")
+        fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "TAS", "RFL", "WeightClass", "RunWay", "GATE", "STACK"];
+    else
+        fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "TAS", "RFL", "WeightClass"];
 
+    // Iterate over the fields and create textboxes for each
+    fields.forEach(field => {
+        let label = document.createElement("label");
+        label.textContent = `Enter the new ${field}: `;
+        let input = document.createElement("input");
+        input.type = "text";
+        input.value = row.cells[field === "RunWay" ? 11 : fields.indexOf(field) + 2].innerHTML; // Adjust the cell index for RunWay
+        input.name = field;
+        form.appendChild(label);
+        form.appendChild(input);
+        form.appendChild(document.createElement("br"));
+    });
+
+    // Add a submit button to the form
+    let submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    form.appendChild(submitButton);
+
+    // Create a modal overlay
+    let modalOverlay = document.createElement("div");
+    modalOverlay.classList.add("modal-overlay");
+
+    // Display the form in the modal overlay
+    modalOverlay.appendChild(form);
+    document.body.appendChild(modalOverlay);
+
+    // Handle the form submission
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Extract values from the form
+        let updatedData = { FLIGHT_ID: row.cells[1].innerHTML };
+        fields.forEach(field => {
+            updatedData[field] = form.elements[field].value;
+        });
+        console.log(JSON.stringify(updatedData))
+        // Perform the fetch request
         fetch('http://127.0.0.1:5000/scene/update', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data.message);
-        // Optionally update your UI based on the response
-    })
-    .catch(error => {
-        console.error('Error updating data:', error.message);
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data.message);
+            // Optionally update your UI based on the response
+        })
+        .catch(error => {
+            console.error('Error updating data:', error.message);
+        });
+
+        // Remove the modal overlay after submission
+        document.body.removeChild(modalOverlay);
     });
 }
 
-    function tableToCSV() {
 
-        // Variable to store the final csv data
-        let csv_data = [];
 
-        // Get each row data
-        const rows = document.getElementsByTagName('tr');
-        for (let i = 0; i < rows.length; i++) {
-
-            // Get each column data
-            const cols = rows[i].querySelectorAll('td,th');
-
-            // Stores each csv row data
-            const csvrow = [];
-            for (let j = 1; j < cols.length; j++) {
-
-                // Get the text data of each cell of
-                // a row and push it to csvrow
-                csvrow.push(cols[j].innerHTML);
-            }
-
-            // Combine each column value with comma
-            csv_data.push(csvrow.join(","));
-        }
-        // combine each row data with new line character
-        csv_data = csv_data.join('\n');
-
-        // console.log(csv_data)
-    }
 
     function confirmDelete() {
         const deleteDate = document.getElementById("DateOlder").value;
