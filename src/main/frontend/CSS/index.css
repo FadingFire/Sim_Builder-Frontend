@@ -4,7 +4,7 @@ body{
 
 .whole{
     position: fixed;
-    height: 80%;
+    height: 100%;
     width: 100%;
     z-index: 1;
     display: flex;
@@ -14,9 +14,19 @@ body{
     flex-direction: column;
 }
 
+.dirclass{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
 .form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: rgba(255, 255, 255, 0.37);
-    padding: 15vh;
+    width: 30%;
+    height: 40%;
 }
 
 .knop{

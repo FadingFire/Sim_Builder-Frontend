@@ -12,14 +12,27 @@
             <h1>Flights Database</h1>
         </div>
 
+        <div class="search-container">
+            <label for="search">Search:</label>
+            <input type="text" id="search" oninput="fetchData(pagenumber, pagesize, sortOrder)">
+        </div>
+
         <div id="table">
             <div id="output" class="output-container">
             </div>
 
             <div class="pagination-container">
-                <button onclick="pagedown()">pagedown</button>
-                <p id="page">Page: 1</p>
-                <button onclick="pageup()">pageup</button>
+                <div class="pagebuttons">
+                    <button id="pagemin" onclick="pagemin()" disabled> << </button>
+                    <button onclick="pagedown()"><</button>
+                </div>
+
+                <p id="page"></p>
+                <div class="pagebuttons">
+                    <button onclick="pageup()">></button>
+                    <button id="pagemax" onclick="pagemax()"> >> </button>
+                </div>
+
             </div>
 
             <div class="delete-container">
@@ -81,6 +94,10 @@
         });
     }
 
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 
     function uploadFile() {
         const formData = new FormData(document.getElementById('uploadForm'));
@@ -89,10 +106,12 @@
             method: 'POST',
             body: formData
         })
+        // Clear file input fields after upload
+        document.getElementById("Flights").value = '';
+        document.getElementById("Landings").value = '';
+        sleep(2000).then(() => { fetchData(pagenumber, pagesize, sortOrder)});
     }
-    // Clear file input fields after upload
-    document.getElementById("Flights").value = '';
-    document.getElementById("Landings").value = '';
+
 
     function myfunction(self) {
         const option = document.createElement("option");
@@ -105,21 +124,31 @@
         if (pagenumber < rowcount) {
             pagenumber = pagenumber + 1;
             fetchData(pagenumber, pagesize, sortOrder);
-            page.innerText = "page: " + pagenumber;
         }
     }
 
+    function pagemax() {
+        pagenumber = rowcount;
+        fetchData(pagenumber, pagesize, sortOrder);
+        document.getElementById("pagemax").disabled = true
+    }
+    function pagemin() {
+        pagenumber = 1;
+        fetchData(pagenumber, pagesize, sortOrder);
+        document.getElementById("pagemin").disabled = true
+    }
     function pagedown() {
         if (pagenumber > 1) {
             pagenumber = pagenumber - 1;
             fetchData(pagenumber, pagesize, sortOrder);
-            page.innerText = "page: " + pagenumber;
         }
     }
 
+
     async function fetchData(pageNumber, pageSize, order) {
         try {
-            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&DeleteOlder=${document.getElementById("DateOlder").value}&Deleterow=${deleterow[1].innerHTML}&order=${order}`;
+            const searchValue = document.getElementById("search").value;
+            let url = `http://127.0.0.1:5000/scene/complete/table?pageNumber=${pageNumber}&pageSize=${pageSize}&sortBy=${cellContent}&order=${order}&searchfilter=${searchValue}`;
             const response = await fetch(url);
 
             if (!response.ok) {
@@ -129,16 +158,21 @@
 
             // Call your function to update the table with the response data
             processData(responseData.data);
-            rowcount = responseData.pagenumber
-            console.log(rowcount)
+            rowcount = responseData.pagenumber + 1; // Update totalPages variable
+            document.getElementById("pagemax").disabled = pagenumber >= rowcount;
+            document.getElementById("pagemin").disabled = pagenumber <= 1;
+            if (rowcount < 1) {
+                rowcount = 1;
+            }
+            page.innerText = "Page: " + pagenumber + " of " + rowcount;
         } catch (error) {
             console.error('Error fetching paginated data:', error.message);
         }
     }
-
-    let haschanged = false;
-    let cellContent;
-
+    let cellContent
+    if (!cellContent){
+        cellContent = "FLIGHT_ID";
+    }
     function processData(csv) {
         const allTextLines = csv.split(/\r\n|\n/);
         let lines = [];
@@ -166,26 +200,33 @@
                 // Handling click for the header row
                 row.insertCell(-1).innerHTML = '';
                 row.firstChild.id = "buttons";
-                row.onclick = function (event) {
-                    if (event.target.tagName === "TD" && event.target.id !== "buttons") {
-                        if (cellContent === event.target.innerHTML) {
+                for (let j = 0; j < lines[i].length; j++) {
+                    // Add arrow indicators for sorting order next to each header cell
+                    const headerCell = row.insertCell(-1);
+                    headerCell.innerHTML = lines[i][j];
+                    if (lines[i][j] === cellContent) {
+                        headerCell.innerHTML += sortOrder === 'asc' ? '▼' : '▲';
+                    }
+
+                    headerCell.onclick = function () {
+                        if (cellContent === lines[i][j]) {
                             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
                         } else {
-                            cellContent = event.target.innerHTML;
+                            cellContent = lines[i][j];
                             sortOrder = 'asc';
                         }
-                        fetchData(1, pagesize, sortOrder);
-                    }
-                };
+                        fetchData(pagenumber, pagesize, sortOrder);
+                    };
+                }
             } else if (i <= pagesize) {
                 // Buttons for non-header rows
                 row.insertCell(-1).innerHTML =
                     '<button onclick="editData(this)">Edit</button>' +
                     '<button onclick="deleteData(this)">Delete</button>';
-            }
-            for (let j = 0; j < lines[i].length; j++) {
-                const cell = row.insertCell(-1);
-                cell.appendChild(document.createTextNode(lines[i][j]));
+                for (let j = 0; j < lines[i].length; j++) {
+                    const cell = row.insertCell(-1);
+                    cell.appendChild(document.createTextNode(lines[i][j]));
+                }
             }
         }
         document.getElementById("output").appendChild(table);
@@ -197,88 +238,101 @@
         deleterow = row.children;
         // Remove the row from the table
         row.parentNode.removeChild(row);
-        haschanged = true;
-        let url = `http://127.0.0.1:5000/scene/complete/table?Deleterow=${deleterow[1].innerHTML}`;
+        let url = `http://127.0.0.1:5000/scene/delete?Deleterow=${deleterow[1].innerHTML}`;
         await fetch(url);
+        await fetchData(pagenumber,pagesize,sortOrder)
     }
 
     function editData(button) {
-    haschanged = true;
-    let row = button.parentNode.parentNode;
+        let row = button.parentNode.parentNode;
 
-    // Create a form element
-    let form = document.createElement("form");
-    form.className = "editform"
-    let fields
+        // Create a form element
+        let form = document.createElement("form");
+        form.className = "editform"
+        let fields
 
-    // Define the fields you want to edit
-    if (row.cells[6].innerHTML === "EHAM")
-        fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "TAS", "RFL", "WeightClass", "RunWay", "GATE", "STACK"];
-    else
-        fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "TAS", "RFL", "WeightClass"];
+        // Define the fields you want to edit
+        if (row.cells[6].innerHTML === "EHAM")
+            fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "FLIGHT_RULES", "TAS", "RFL", "WeightClass", "RunWay", "GATE", "STACK"];
+        else
+            fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "FLIGHT_RULES", "TAS", "RFL", "WeightClass"];
 
-    // Iterate over the fields and create textboxes for each
-    fields.forEach(field => {
-        let label = document.createElement("label");
-        label.textContent = `Enter the new ${field}: `;
-        let input = document.createElement("input");
-        input.type = "text";
-        input.value = row.cells[field === "RunWay" ? 11 : fields.indexOf(field) + 2].innerHTML; // Adjust the cell index for RunWay
-        input.name = field;
-        form.appendChild(label);
-        form.appendChild(input);
-        form.appendChild(document.createElement("br"));
-    });
-
-    // Add a submit button to the form
-    let submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
-    form.appendChild(submitButton);
-
-    // Create a modal overlay
-    let modalOverlay = document.createElement("div");
-    modalOverlay.classList.add("modal-overlay");
-
-    // Display the form in the modal overlay
-    modalOverlay.appendChild(form);
-    document.body.appendChild(modalOverlay);
-
-    // Handle the form submission
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        // Extract values from the form
-        let updatedData = { FLIGHT_ID: row.cells[1].innerHTML };
+        // Iterate over the fields and create textboxes for each
         fields.forEach(field => {
-            updatedData[field] = form.elements[field].value;
-        });
-        console.log(JSON.stringify(updatedData))
-        // Perform the fetch request
-        fetch('http://127.0.0.1:5000/scene/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedData),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+            let label = document.createElement("label");
+            label.textContent = `Enter the new ${field}: `;
+            let input = document.createElement("input");
+
+            // Adjust the cell index for RunWay and GATE
+            let cellIndex;
+            if (field === "RunWay") {
+                cellIndex = 12;
+            } else if (field === "GATE") {
+                cellIndex = 13;
+            } else if (field === "STACK") {
+                cellIndex = 14;
+            } else {
+                cellIndex = fields.indexOf(field) + 2;
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data.message);
-            // Optionally update your UI based on the response
-        })
-        .catch(error => {
-            console.error('Error updating data:', error.message);
+
+            input.value = row.cells[cellIndex].innerHTML;
+            input.type = "text";
+            input.name = field;
+            form.appendChild(label);
+            form.appendChild(input);
+            form.appendChild(document.createElement("br"));
         });
 
-        // Remove the modal overlay after submission
-        document.body.removeChild(modalOverlay);
-    });
-}
+        // Add a submit button to the form
+        let submitButton = document.createElement("button");
+        submitButton.textContent = "Submit";
+        form.appendChild(submitButton);
+
+        // Create a modal overlay
+        let modalOverlay = document.createElement("div");
+        modalOverlay.classList.add("modal-overlay");
+
+        // Display the form in the modal overlay
+        modalOverlay.appendChild(form);
+        document.body.appendChild(modalOverlay);
+
+        // Handle the form submission
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Extract values from the form
+            let updatedData = { FLIGHT_ID: row.cells[1].innerHTML };
+            fields.forEach(field => {
+                updatedData[field] = form.elements[field].value;
+            });
+            console.log(JSON.stringify(updatedData))
+            // Perform the fetch request
+            fetch('http://127.0.0.1:5000/scene/update', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.message);
+                fetchData(pagenumber,pagesize,sortOrder)
+                // Optionally update your UI based on the response
+            })
+            .catch(error => {
+                console.error('Error updating data:', error.message);
+            });
+
+            // Remove the modal overlay after submission
+            document.body.removeChild(modalOverlay);
+        });
+    }
 
 
 
@@ -289,7 +343,9 @@
 
         if (confirmation) {
             // User confirmed, proceed with deletion
-            fetchData(pagenumber, pagesize, sortOrder);
+            let url = `http://127.0.0.1:5000/scene/delete?DeleteOlder=${document.getElementById("DateOlder").value}`;
+            fetch(url);
+            sleep(2000).then(() => { fetchData(pagenumber, pagesize, sortOrder)});
         }
         // If not confirmed, do nothing
     }
