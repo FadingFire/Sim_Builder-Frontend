@@ -18,6 +18,20 @@ body{
     display: flex;
     justify-content: center;
     flex-direction: column;
+    margin: 2vh;
+}
+
+.Weightclass{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 2vh;
+}
+
+.boxleft{
+    display: flex;
+    flex-direction: row;
+    margin: 2vh;
 }
 
 .form{
@@ -25,8 +39,8 @@ body{
     justify-content: center;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.37);
-    width: 30%;
-    height: 40%;
+    width: 40%;
+    height: 50%;
 }
 
 .knop{
@@ -43,6 +57,12 @@ body{
 .scene{
     display: flex;
     flex-direction: column;
+}
+
+.planeamount{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .sceneselect{
