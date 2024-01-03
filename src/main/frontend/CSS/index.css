@@ -28,10 +28,48 @@ body{
     margin: 2vh;
 }
 
+.presetclass{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.difficulty-buttons {
+    text-align: center;
+    margin-bottom: 5vh;
+}
+
+.difficulty-buttons button {
+    background-color: blue; /* Green background color */
+    border: none; /* Remove border */
+    color: white; /* White text color */
+    border-radius: 7px;
+    padding: 8px 12px; /* Padding */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.difficulty-buttons button:hover {
+    background-color: darkblue; /* Darker green on hover */
+}
+
+
+
+.appclass{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 2vh;
+}
+
 .boxleft{
     display: flex;
     flex-direction: row;
     margin: 2vh;
+    justify-content: center;
 }
 
 .form{
@@ -39,8 +77,8 @@ body{
     justify-content: center;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.37);
-    width: 40%;
-    height: 50%;
+    width: 50%;
+    height: 60%;
 }
 
 .knop{
@@ -60,6 +98,12 @@ body{
 }
 
 .planeamount{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.planeamounts{
     display: flex;
     justify-content: space-around;
     align-items: center;

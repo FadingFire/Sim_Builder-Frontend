@@ -12,12 +12,13 @@
         <div class="title">
             <h1>Flights Database</h1>
         </div>
-
-        <div class="search-container">
-            <label for="search">Search:</label>
-            <input type="text" id="search" oninput="fetchData(pagenumber, pagesize, sortOrder)">
+        <div class="tabletop">
+            <div class="search-container">
+                <label for="search">Search:</label>
+                <input type="text" id="search" oninput="fetchData(pagenumber, pagesize, sortOrder)">
+            </div>
+            <button type="button" onclick="changepage()">show self-made planes</button>
         </div>
-
         <div id="table">
             <div id="output" class="output-container">
             </div>

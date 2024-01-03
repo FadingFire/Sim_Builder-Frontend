@@ -72,8 +72,19 @@ tr:hover {
     height: 100%;
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
     display: flex;
+    padding-top: 9vh;
     justify-content: center;
-    align-items: center;
+    align-items: start;
+}
+
+.tabletop{
+    display: flex;
+    justify-content: space-between;
+    margin: 1vh;
+}
+
+.exitbutton{
+margin-right: 1vh;
 }
 
 .editform {

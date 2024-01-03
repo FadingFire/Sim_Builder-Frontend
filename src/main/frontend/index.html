@@ -19,30 +19,37 @@
             <form id="choice" method="get" name="choice">
                 <div class="scene">
                     <div class="planeamount">
-                        <div class="planeamount">
+                        <div class="planeamounts">
                             <p>plane amount: </p>
                             <input type="number" id="sortamount" min="0" max="100">
                         </div>
-                        <div class="planeamount">
+                        <div class="planeamounts">
                             <p>Scenario duration:</p>
                             <input type="number" id="scenetime" min="0" max="100">
                         </div>
+                        <div class="planeamounts">
+                            <p>file name:</p>
+                            <input type="text" id="filename">
+                        </div>
                     </div>
                     <div class="boxleft">
-                        <div class="dirclass">
-                            <p>percentage of directions:</p>
-                            RIVER <input type="range" id="riverSlider" min="0" max="100" step="1" value="25">
-                            ARTIP <input type="range" id="artipSlider" min="0" max="100" step="1" value="25">
-                            SUGOL <input type="range" id="sugolSlider" min="0" max="100" step="1" value="25">
-                            EHAM <input type="range" id="EHAMSlider" min="0" max="100" step="1" value="25">
+                        <div class="appclass" id="appsliders">
+                            <p>percentage of direction:</p>
                         </div>
-                        <div class="Weightclass">
+                        <div class="dirclass" id="directionSliders">
+                            <p>percentage of STACK:</p>
+                        </div>
+                        <div class="Weightclass" id="WTCsliders">
                             <p>percentage of WTC:</p>
-                            L <input type="range" id="L" min="0" max="100" step="1" value="25">
-                            M <input type="range" id="M" min="0" max="100" step="1" value="25">
-                            H <input type="range" id="H" min="0" max="100" step="1" value="25">
-                            J <input type="range" id="J" min="0" max="100" step="1" value="25">
-
+                        </div>
+                    </div>
+                    <div class="presetclass">
+                        <div><p>Presets</p></div>
+                        <div class="difficulty-buttons">
+                            <button id="easyButton" type="button">Easy</button>
+                            <button id="mediumButton" type="button">Medium</button>
+                            <button id="hardButton" type="button">Hard</button>
+                            <button id="extraHardButton" type="button">Extra Hard</button>
                         </div>
                     </div>
                     <input type="button" onclick="downloadScene()" value="submit">

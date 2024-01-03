@@ -1,10 +1,21 @@
-
 let pagenumber = 1;
 let pagesize = 10;
 let page = document.getElementById("page");
 let deleterow = ["", ''];
 let sortOrder = 'asc'; // Default sorting order
 let rowcount
+let selfmade = true
+
+
+async function changepage() {
+    let url = `http://127.0.0.1:5000/scene/change_outputfile?selfmade=${selfmade}`;
+    await fetch(url, { method: 'OPTIONS' }).then(() => {
+      fetchData(pagenumber, pagesize, sortOrder);
+    });
+    selfmade = !selfmade;
+}
+
+
 function downloadScene() {
     let sortamount = document.getElementById("sortamount").value;
     fetch(`http://127.0.0.1:5000/scene/scene?sortamount=${sortamount}`, {
@@ -36,10 +47,11 @@ function downloadScene() {
 function uploadFile() {
     const formData = new FormData(document.getElementById('uploadForm'));
     const url = 'http://127.0.0.1:5000/scene/upload'
-    fetch(url, {
-        method: 'POST',
-        body: formData
-    }).then((value) => {
+    fetch(url,
+    {
+            method: 'POST',
+            body: formData
+        }).then((value) => {
             fetchData(pagenumber, pagesize, sortOrder)
         }
     );
@@ -48,13 +60,6 @@ function uploadFile() {
     document.getElementById("Landings").value = ''
 }
 
-
-function myfunction(self) {
-    const option = document.createElement("option");
-    option.value = self;
-    option.id = "existing";
-    document.getElementById("airlines").appendChild(option);
-}
 
 function pageup() {
     if (pagenumber < rowcount) {
@@ -143,7 +148,7 @@ function drawOutput(lines) {
 
         if (i === 0) {
             // Handling click for the header row
-            row.insertCell(-1).innerHTML = '';
+            row.insertCell(-1).innerHTML = '<button onclick="addData()">+</button>';
             row.firstChild.id = "buttons";
             for (let j = 0; j < lines[i].length; j++) {
                 // Add arrow indicators for sorting order next to each header cell
@@ -188,6 +193,96 @@ async function deleteData(button) {
     await fetchData(pagenumber, pagesize, sortOrder)
 }
 
+
+function addData(){
+    // Create a form element
+    let form = document.createElement("form");
+    form.className = "editform"
+    let exitButton = document.createElement("button");
+    exitButton.textContent = "X";
+    exitButton.className = "exitbutton"
+
+    exitButton.onclick=function() {
+        document.body.removeChild(modalOverlay);
+    };
+    let fields
+    // Define the fields you want to edit
+    fields = ["Callsign", "Operator", "ICAOType", "ADEP", "DEST", "FLIGHT_RULES", "TAS", "RFL", "WeightClass", "RunWay", "GATE", "STACK"];
+    // Iterate over the fields and create textboxes for each
+    fields.forEach(field => {
+        let label = document.createElement("label");
+        label.textContent = `Enter the new ${field}: `;
+        let input = document.createElement("input");
+
+        if (field === "Operator"){ input.maxLength = 3 }
+        if ((field === "ADEP") || (field === "DEST")){ input.maxLength = 4 }
+        if ((field === "FLIGHT_RULES") || (field === "WTC")){ input.maxLength = 1 }
+        if ((field === "RFL") || (field === "TAS")){
+            input.onkeydown = function(event) {
+                if(isNaN(event.key) && event.key !== 'Backspace') { event.preventDefault(); }
+            };
+        }
+
+        input.type = "text";
+        input.name = field;
+        form.appendChild(label);
+        form.appendChild(input);
+        form.appendChild(document.createElement("br"));
+    });
+
+    // Add a submit button to the form
+    let submitButton = document.createElement("button");
+    submitButton.textContent = "Submit";
+    form.appendChild(submitButton);
+
+    // Create a modal overlay
+    let modalOverlay = document.createElement("div");
+    modalOverlay.classList.add("modal-overlay");
+    modalOverlay.appendChild(exitButton);
+
+    // Display the form in the modal overlay
+    modalOverlay.appendChild(form);
+    document.body.appendChild(modalOverlay);
+
+    // Handle the form submission
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Extract values from the form
+        let newData = {};
+        fields.forEach(field => {
+            newData[field] = form.elements[field].value;
+        });
+        // Perform the fetch request
+        const url ='http://127.0.0.1:5000/scene/add'
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newData),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.message);
+                fetchData(pagenumber, pagesize, sortOrder)
+                // Optionally update your UI based on the response
+            })
+            .catch(error => {
+                console.error('Error updating data:', error.message);
+            });
+
+        // Remove the modal overlay after submission
+        document.body.removeChild(modalOverlay);
+    });
+}
+
+
 function editData(button) {
     let row = button.parentNode.parentNode;
 
@@ -195,6 +290,13 @@ function editData(button) {
     let form = document.createElement("form");
     form.className = "editform"
     let fields
+    let exitButton = document.createElement("button");
+    exitButton.textContent = "X";
+    exitButton.className = "exitbutton"
+
+    exitButton.onclick=function() {
+        document.body.removeChild(modalOverlay);
+    };
 
     // Define the fields you want to edit
     if (row.cells[6].innerHTML === "EHAM")
@@ -211,11 +313,11 @@ function editData(button) {
         // Adjust the cell index for RunWay and GATE
         let cellIndex;
         if (field === "RunWay") {
-            cellIndex = 12;
-        } else if (field === "GATE") {
             cellIndex = 13;
-        } else if (field === "STACK") {
+        } else if (field === "GATE") {
             cellIndex = 14;
+        } else if (field === "STACK") {
+            cellIndex = 15;
         } else {
             cellIndex = fields.indexOf(field) + 2;
         }
@@ -238,8 +340,10 @@ function editData(button) {
     modalOverlay.classList.add("modal-overlay");
 
     // Display the form in the modal overlay
+    modalOverlay.appendChild(exitButton);
     modalOverlay.appendChild(form);
     document.body.appendChild(modalOverlay);
+
 
     // Handle the form submission
     form.addEventListener("submit", function (event) {
