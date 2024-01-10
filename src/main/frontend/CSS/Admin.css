@@ -1,4 +1,3 @@
-/* Global Reset */
 body,
 h1,
 h2,
@@ -70,7 +69,7 @@ tr:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     padding-top: 9vh;
     justify-content: center;

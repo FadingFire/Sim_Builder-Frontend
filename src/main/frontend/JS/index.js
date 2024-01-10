@@ -66,7 +66,7 @@ function initializeSliders(groupId, sliderIds) {
 }
 
 // Initialize sliders for the direction and WTC groups
-const directionSliders = initializeSliders("directionSliders", ["river", "artip", "sugol"]);
+const directionSliders = initializeSliders("directionSliders", ["RIVER", "ARTIP", "SUGOL"]);
 const WTCsliders = initializeSliders("WTCsliders", ["L", "M", "H", "J"]);
 const APPsliders = initializeSliders("appsliders", ["INBOUND", "OUTBOUND"]);
 
@@ -102,9 +102,9 @@ function setDifficulty(difficulty) {
             set(directionSliders[1], 33);
             set(directionSliders[2], 33);
             set(WTCsliders[0], 20)
-            set(WTCsliders[1], 60)
+            set(WTCsliders[1], 65)
             set(WTCsliders[2], 15)
-            set(WTCsliders[3], 5)
+            set(WTCsliders[3], 0)
             break;
         case 'medium':
             document.getElementById('sortamount').value = 20;
@@ -117,8 +117,8 @@ function setDifficulty(difficulty) {
             set(directionSliders[2], 33);
             set(WTCsliders[0], 15)
             set(WTCsliders[1], 45)
-            set(WTCsliders[2], 35)
-            set(WTCsliders[3], 5)
+            set(WTCsliders[2], 40)
+            set(WTCsliders[3], 0)
             break;
         case 'hard':
             document.getElementById('sortamount').value = 30;
@@ -131,8 +131,8 @@ function setDifficulty(difficulty) {
             set(directionSliders[2], 33);
             set(WTCsliders[0], 10)
             set(WTCsliders[1], 35)
-            set(WTCsliders[2], 45)
-            set(WTCsliders[3], 10)
+            set(WTCsliders[2], 50)
+            set(WTCsliders[3], 5)
             break;
         case 'extra-hard':
             document.getElementById('sortamount').value = 100;

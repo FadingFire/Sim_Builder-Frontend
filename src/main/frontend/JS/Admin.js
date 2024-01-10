@@ -269,7 +269,6 @@ function addData(){
                 return response.json();
             })
             .then(data => {
-                console.log(data.message);
                 fetchData(pagenumber, pagesize, sortOrder)
                 // Optionally update your UI based on the response
             })
@@ -354,7 +353,6 @@ function editData(button) {
         fields.forEach(field => {
             updatedData[field] = form.elements[field].value;
         });
-        console.log(JSON.stringify(updatedData))
         // Perform the fetch request
         const url ='http://127.0.0.1:5000/scene/update'
         fetch(url, {
@@ -371,7 +369,6 @@ function editData(button) {
                 return response.json();
             })
             .then(data => {
-                console.log(data.message);
                 fetchData(pagenumber, pagesize, sortOrder)
                 // Optionally update your UI based on the response
             })
