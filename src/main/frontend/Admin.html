@@ -3,42 +3,60 @@
     <head>
         <meta charset="UTF-8">
         <link rel="stylesheet" href="CSS/Admin.css">
+        <script src="JS/Admin.js" defer></script>
         <title>Adminpage</title>
     </head>
 <body>
-    <header>
-        <div class="header">
-            <div class="logo">
-                <img src="Assets/istockphoto-518202091-612x612.jpg" height="100%" width="100%">
-            </div>
+    <div class="container">
+
+        <div class="title">
+            <h1>Flights Database</h1>
         </div>
-    </header>
-    <div>
-        <img class="background" src="Assets/3c591d9bbbefed4bd8aca3ac988e16cc-1506773100.jpg" alt="none" height="100%" width="100%">
-        <form class="form" name="choice">
-            <button class="knop" onclick=sendCommand()>submit</button>
-            <label>
-                <input list="airlines" placeholder="start typing..." name="choose">
-            </label>
-            <datalist id="airlines">
-            </datalist>
-        </form>
+        <div class="tabletop">
+            <div class="search-container">
+                <label for="search">Search:</label>
+                <input type="text" id="search" oninput="fetchData(pagenumber, pagesize, sortOrder)">
+            </div>
+            <button type="button" onclick="changepage()">show self-made planes</button>
+        </div>
+        <div id="table">
+            <div id="output" class="output-container">
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagebuttons">
+                    <button id="pagemin" onclick="pagemin()" disabled> << </button>
+                    <button onclick="pagedown()"><</button>
+                </div>
+
+                <p id="page"></p>
+                <div class="pagebuttons">
+                    <button onclick="pageup()">></button>
+                    <button id="pagemax" onclick="pagemax()"> >> </button>
+                </div>
+
+            </div>
+
+            <div class="delete-container">
+                <label for="DateOlder">Delete data older than:</label>
+                <input id="DateOlder" type="date">
+                <button onclick="confirmDelete()">Save</button>
+            </div>
+
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                <label for="Flights">Choose a file:</label>
+                <input type="file" name="Flights" id="Flights">
+                <input type="file" name="Landings" id="Landings">
+                <input type="button" value="Upload" onclick="uploadFile()">
+            </form>
+
+            <div class="scenebutton">
+                <form action="http://192.168.59.1:3000/src/main/frontend/">
+                    <button class="scenebutton" onclick="downloadScene()">Make A Scene</button>
+                </form>
+            </div>
+
+        </div>
     </div>
 </body>
 </html>
-<script>
-    async function sendCommand(){
-        let url = "http://127.0.0.1:5000/terminal/start"
-        const response = await fetch(url);
-        const info = await response.json();
-        // if (!document.getElementById("existing")){
-        //     info.message.sort().forEach(myfunction);
-        // }
-    }
-    function myfunction(self) {
-        const option = document.createElement("option");
-        option.value = self;
-        option.id = "existing"
-        document.getElementById("airlines").appendChild(option);
-    }
-</script>

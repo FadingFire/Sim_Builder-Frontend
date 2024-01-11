@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+#env
+/src/main/frontend/JS/.env.js
+
 # Distribution / packaging
 .Python
 build/
