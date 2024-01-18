@@ -5,6 +5,16 @@ let deleterow = ["", ''];
 let sortOrder = 'asc'; // Default sorting order
 let rowcount
 let selfmade = true
+let airlines
+let datalistdiv = false
+let airlinesDatalist = false
+
+
+function airlinefunction(item) {
+    const option = document.createElement("option");
+    option.value = item;
+    airlinesDatalist.appendChild(option);
+}
 
 
 async function changepage() {
@@ -107,12 +117,22 @@ async function fetchData(pageNumber, pageSize, order) {
         // Call your function to update the table with the response data
         processData(responseData.data);
         rowcount = responseData.pagenumber + 1; // Update totalPages variable
+        airlines = responseData.providers
         document.getElementById("pagemax").disabled = pagenumber >= rowcount;
         document.getElementById("pagemin").disabled = pagenumber <= 1;
         if (rowcount < 1) {
             rowcount = 1;
         }
-        page.innerText = "Page: " + pagenumber + " of " + rowcount;
+        page.innerText = pagenumber + " of " + rowcount;
+        if (airlinesDatalist) {
+            datalistdiv.removeChild(airlinesDatalist)
+        }
+        datalistdiv = document.getElementById("datalistdiv")
+        airlinesDatalist = document.createElement("Datalist");
+        airlinesDatalist.id = "airlines"
+        datalistdiv.appendChild(airlinesDatalist)
+        airlines.forEach(airlinefunction);
+
     } catch (error) {
         console.error('Error fetching paginated data:', error.message);
     }
@@ -294,6 +314,7 @@ function editData(button) {
     exitButton.className = "exitbutton"
 
     exitButton.onclick=function() {
+        modalOverlay
         document.body.removeChild(modalOverlay);
     };
 
@@ -384,18 +405,33 @@ function editData(button) {
 
 function confirmDelete() {
     const deleteDate = document.getElementById("DateOlder").value;
-    const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
-
-    if (confirmation) {
-        // User confirmed, proceed with deletion
-        let url = `http://127.0.0.1:5000/scene/delete?DeleteOlder=${document.getElementById("DateOlder").value}`;
-        fetch(url).then((value) => {
-                fetchData(pagenumber, pagesize, sortOrder)
-            }
-        );
+    if (deleteDate) {
+        const confirmation = window.confirm(`Are you sure you want to delete all data older than ${deleteDate}?`);
+        if (confirmation) {
+            // User confirmed, proceed with deletion
+            let url = `http://127.0.0.1:5000/scene/delete?DeleteOlder=${document.getElementById("DateOlder").value}`;
+            fetch(url).then((value) => {
+                    fetchData(pagenumber, pagesize, sortOrder)
+                }
+            );
+        }
     }
-    // If not confirmed, do nothing
 }
+
+function airlineDelete() {
+    const deleteAirline = document.getElementById("airlinechoice").value;
+    if (deleteAirline) {
+        const confirmation = window.confirm(`Are you sure you want to delete ${deleteAirline}?`);
+        if (confirmation) {
+            let url = `http://127.0.0.1:5000/scene/delete?Deleteprovider=${deleteAirline}`;
+            fetch(url).then((value) => {
+                    fetchData(pagenumber, pagesize, sortOrder)
+                }
+            );
+        }
+    }
+}
+
 
 // Fetch paginated data when the page loads
 fetchData(1, 10, sortOrder);

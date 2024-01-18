@@ -11,14 +11,17 @@
         <div class="header">
             <div class="logo">
                 <a href="http://192.168.59.1:3000/src/main/frontend/admin">
-                <img src="Assets/lvnl.jpg" height="100%" width="100%" alt="">
-                    </a>
+                    <img src="Assets/lvnl.jpg" height="100%" width="100%" alt="">
+                </a>
             </div>
         </div>
     </header>
     <div class="whole">
         <div class="form">
             <form id="choice" method="get" name="choice">
+                <div>
+                    <h1>Make Scene:</h1>
+                </div>
                 <div class="scene">
                     <div class="planeamount">
                         <div class="planeamounts">
@@ -45,8 +48,10 @@
                             <p>percentage of WTC:</p>
                         </div>
                     </div>
+                </div>
+                <div class="submit">
                     <div class="presetclass">
-                        <div><p>Presets</p></div>
+                        <div><p>Presets:</p></div>
                         <div class="difficulty-buttons">
                             <button id="easyButton" type="button">Easy</button>
                             <button id="mediumButton" type="button">Medium</button>
@@ -54,7 +59,7 @@
                             <button id="extraHardButton" type="button">Extra Hard</button>
                         </div>
                     </div>
-                    <input type="button" onclick="downloadScene()" value="submit">
+                    <input type="button" onclick="downloadScene()" value="Make Scene">
                 </div>
             </form>
         </div>
