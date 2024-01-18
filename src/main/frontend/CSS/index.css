@@ -33,7 +33,7 @@ body {
 
 .whole {
     position: absolute;
-    height: 100%;
+    height: 90%;
     width: 100%;
     z-index: 1;
     display: flex;
@@ -110,8 +110,6 @@ input[type="button"]:hover {
 
 .boxleft {
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
     align-items: flex-start;
 }
 
@@ -133,5 +131,15 @@ input[type="button"]:hover {
 .scene{
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+}
+
+.submit{
+    display: flex;
+    flex-direction: column;
     align-items: center;
+}
+
+.planeamount p, .presetclass p{
+    margin: 0;
 }
